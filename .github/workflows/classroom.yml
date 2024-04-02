@@ -1,0 +1,33 @@
+name: Autograding Tests
+'on':
+- push
+- workflow_dispatch
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Demo test addition of 2 numbers
+      id: demo-test-addition-of-2-numbers
+      uses: education/autograding-io-grader@v1
+      with:
+        test-name: Demo test addition of 2 numbers
+        setup-command: gcc main.c
+        command: "./a.out"
+        input: "5\r\n4"
+        expected-output: '9'
+        comparison-method: contains
+        timeout: 1
+    - name: Autograding Reporter
+      uses: education/autograding-grading-reporter@v1
+      env:
+        DEMO-TEST-ADDITION-OF-2-NUMBERS_RESULTS: "${{steps.demo-test-addition-of-2-numbers.outputs.result}}"
+      with:
+        runners: demo-test-addition-of-2-numbers
